@@ -1,0 +1,105 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>DocuAI - Clasificación de documentos</title>
+    <link rel="stylesheet"
+          href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            DOCU<span>AI</span>
+        </div>
+        <nav>
+            <a href="#">Inicio</a>
+            <a href="{% url 'explicacion' %}">Ayuda</a> 
+        </nav>
+        {% if user.is_authenticated %}
+            <span>
+                Hola, {{ user.username }}
+            </span>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">
+                    Cerrar sesión
+                </button>
+            </form>
+        {% endif %}
+    </header>
+    <main>
+        <h2>
+            ¿Cómo funciona?
+        </h2>
+        <div class="process-card">
+
+                    <div class="number">
+                        01
+                    </div>
+
+                    <h3>
+                        Preprocesamiento
+                    </h3>
+
+                    <p>
+                        Hacemos un tratamiento de la imagen
+                        mediante el uso de procesos como la 
+                        eliminacion de blancos o el tratamiento 
+                        de colores.
+                    </p>
+
+                </div>
+                <div class="process-card">
+                    <div class="number">
+                        02
+                    </div>
+
+                    <h3>
+                        OCR
+                    </h3>
+
+                    <p>
+                        Extraemos el texto de las imagenes tras el tratamiento 
+                        para pasarselo al LLM
+                    </p>
+                </div>
+                <div class="process-card">
+                    <div class="number">
+                        03
+                    </div>
+
+                    <h3>
+                        Inteligencia artificial
+                    </h3>
+
+                    <p>
+                        El sistema analiza el contenido
+                        y determina tanto la precision como la fiabilidad 
+                        y el tipo de documento.
+                    </p>
+                </div>
+
+                <div class="process-card">
+                    <div class="number">
+                        04
+                    </div>
+
+                    <h3>
+                        Resultado
+                    </h3>
+
+                    <p>
+                        Mostramos la clasificación,
+                        fiabilidad y razonamiento.
+                    </p>
+                </div>
+    </main>
+</body>

@@ -1,0 +1,134 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>DocuAI - Clasificación de documentos</title>
+    <link rel="stylesheet"
+          href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            DOCU<span>AI</span>
+        </div>
+        <nav>
+            <a href="{% url 'explicacion' %}">Ayuda</a>
+        </nav>
+        {% if user.is_authenticated %}
+            <span>
+                Hola, {{ user.username }}
+            </span>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">
+                    Cerrar sesión
+                </button>
+            </form>
+        {% endif %}
+    </header>
+
+    <main class="main-container">
+        <section class="hero">
+            <p class="tag">
+                CLASIFICACIÓN INTELIGENTE DE DOCUMENTOS
+            </p>
+            <h1>
+                Analiza tus documentos
+                <span>automáticamente</span>
+            </h1>
+            <p class="description">
+                Sube un documento y nuestro sistema analizará
+                su contenido mediante preprocesamiento, OCR,
+                extracción de texto y modelos de inteligencia
+                artificial.
+            </p>
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">
+                    📄
+                </div>
+                <h2>
+                    Arrastra tu documento aquí
+                </h2>
+                <p>
+                    o selecciona un archivo desde tu ordenador
+                </p>
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".pdf,.jpg,.jpeg,.png,.tiff"
+                    hidden
+                >
+                <button
+                    class="upload-button"
+                    id="uploadButton"
+                    type="button"
+                >
+                    Seleccionar archivo
+                </button>
+                <p id="fileName"></p>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <h2>
+                    Resultado del análisis
+                </h2>
+                <p id="resultMessage">
+                    Esperando un documento...   
+                </p>
+                <div class="result-data">
+                    <div>
+                        <span>
+                            Categoría
+                        </span>
+                        <strong id="resultCategory">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Confianza
+                        </span>
+
+                        <strong id="resultConfidence">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="analyzeButton"
+                    class="analyze-button"
+                    type="button"
+                    disabled
+                >
+                    Analizar documento
+                </button>
+
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>
+            DOCUAI · Proyecto de clasificación inteligente
+            de documentos
+        </p>
+    </footer>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
