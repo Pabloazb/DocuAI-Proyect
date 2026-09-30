@@ -2,3 +2,6 @@ Django==6.1.1
 numpy==2.5.3
 onnxruntime==1.30.0
 Pillow==12.3.0
+python-dotenv
+dj-database-url
+psycopg2-binary
