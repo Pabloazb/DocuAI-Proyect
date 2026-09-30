@@ -7,7 +7,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "docuai/wsgi.py"
+      "dest": "config/wsgi.py"
     }
   ]
 }
