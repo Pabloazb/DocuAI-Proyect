@@ -1,13 +1,13 @@
-from django.contrib.auth.decorators import login_required
 from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
 from PIL import Image
 
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 
 from .forms import RegistroForm
 
@@ -41,22 +41,37 @@ CLASS_NAMES = {
 }
 
 
+# =========================================================
+# CARGA DEL MODELO ONNX
+# =========================================================
+
 print("Cargando modelo ONNX...")
 print("Modelo:", MODEL_PATH)
 
+try:
+    session = ort.InferenceSession(
+        str(MODEL_PATH),
+        providers=["CPUExecutionProvider"]
+    )
 
-session = ort.InferenceSession(
-    str(MODEL_PATH),
-    providers=["CPUExecutionProvider"]
-)
+    input_name = session.get_inputs()[0].name
+    output_name = session.get_outputs()[0].name
+
+    print("ONNX: modelo cargado correctamente")
+    print("Input:", input_name)
+    print("Output:", output_name)
+
+except Exception as e:
+    print("ONNX ERROR:", repr(e))
+
+    session = None
+    input_name = None
+    output_name = None
 
 
-input_name = session.get_inputs()[0].name
-output_name = session.get_outputs()[0].name
-
-
-print("Modelo ONNX cargado correctamente.")
-
+# =========================================================
+# PREPROCESAMIENTO DE IMAGEN
+# =========================================================
 
 def preparar_imagen(image):
     image = image.resize((224, 224))
@@ -88,12 +103,20 @@ def preparar_imagen(image):
     return image.astype(np.float32)
 
 
+# =========================================================
+# PÁGINA DE EXPLICACIÓN
+# =========================================================
+
 def explicacion(request):
     return render(
         request,
         "clasificador/explicacion.html"
     )
 
+
+# =========================================================
+# CLASIFICADOR
+# =========================================================
 
 @login_required(login_url="/login/")
 def inicio(request):
@@ -112,12 +135,29 @@ def inicio(request):
 
         try:
 
+            # Comprobar que el modelo está disponible
+            if session is None:
+                return JsonResponse(
+                    {
+                        "error": (
+                            "El modelo ONNX no pudo "
+                            "cargarse en producción."
+                        )
+                    },
+                    status=500
+                )
+
+            # Abrir imagen
             image = Image.open(
                 uploaded_file
             ).convert("RGB")
 
-            image_tensor = preparar_imagen(image)
+            # Preparar imagen
+            image_tensor = preparar_imagen(
+                image
+            )
 
+            # Ejecutar inferencia
             outputs = session.run(
                 [output_name],
                 {
@@ -127,8 +167,10 @@ def inicio(request):
 
             outputs = outputs[0]
 
+            # Softmax
             exp_outputs = np.exp(
-                outputs - np.max(
+                outputs
+                - np.max(
                     outputs,
                     axis=1,
                     keepdims=True
@@ -143,6 +185,7 @@ def inicio(request):
                 )
             )
 
+            # Clase predicha
             predicted_class = int(
                 np.argmax(
                     probabilities,
@@ -150,6 +193,7 @@ def inicio(request):
                 )[0]
             )
 
+            # Confianza
             confidence_value = (
                 float(
                     probabilities[
@@ -160,6 +204,7 @@ def inicio(request):
                 * 100
             )
 
+            # Nombre de categoría
             category = CLASS_NAMES[
                 predicted_class
             ]
@@ -172,14 +217,15 @@ def inicio(request):
                         2
                     ),
                     "message": (
-                        "Documento clasificado correctamente."
+                        "Documento clasificado "
+                        "correctamente."
                     )
                 }
             )
 
         except Exception as e:
 
-            print("ERROR:", e)
+            print("ERROR CLASIFICANDO:", repr(e))
 
             return JsonResponse(
                 {
@@ -194,6 +240,10 @@ def inicio(request):
     )
 
 
+# =========================================================
+# REGISTRO
+# =========================================================
+
 def registro(request):
 
     if request.user.is_authenticated:
@@ -201,7 +251,9 @@ def registro(request):
 
     if request.method == "POST":
 
-        form = RegistroForm(request.POST)
+        form = RegistroForm(
+            request.POST
+        )
 
         if form.is_valid():
 
