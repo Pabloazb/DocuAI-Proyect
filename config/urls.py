@@ -3,15 +3,22 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from core import views
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
 
     path("", views.inicio, name="inicio"),
 
-    path("explicacion/", views.explicacion, name="explicacion"),
+    path(
+        "explicacion/",
+        views.explicacion,
+        name="explicacion",
+    ),
 
-    path("registro/", views.registro, name="registro"),
+    path(
+        "registro/",
+        views.registro,
+        name="registro",
+    ),
 
     path(
         "login/",
