@@ -1,18 +1,24 @@
 from django.contrib.auth.decorators import login_required
 from pathlib import Path
-import torch
-from torchvision.models import resnet18
-from torchvision import transforms
+
+import numpy as np
+import onnxruntime as ort
 from PIL import Image
+
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.shortcuts import redirect
+
 from .forms import RegistroForm
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MODEL_PATH = BASE_DIR / "modelo" / "modelo_rvlcdip_resnet18.pth"
+MODEL_PATH = (
+    BASE_DIR
+    / "modelo"
+    / "modelo_rvlcdip_resnet18.onnx"
+)
 
 
 CLASS_NAMES = {
@@ -35,51 +41,59 @@ CLASS_NAMES = {
 }
 
 
-DEVICE = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
-
-print("Cargando modelo ResNet18...")
+print("Cargando modelo ONNX...")
 print("Modelo:", MODEL_PATH)
-print("Dispositivo:", DEVICE)
 
 
-model = resnet18(weights=None)
-
-model.fc = torch.nn.Linear(
-    model.fc.in_features,
-    16
+session = ort.InferenceSession(
+    str(MODEL_PATH),
+    providers=["CPUExecutionProvider"]
 )
 
 
-model.load_state_dict(
-    torch.load(
-        MODEL_PATH,
-        map_location=DEVICE
+input_name = session.get_inputs()[0].name
+output_name = session.get_outputs()[0].name
+
+
+print("Modelo ONNX cargado correctamente.")
+
+
+def preparar_imagen(image):
+    image = image.resize((224, 224))
+
+    image = np.array(image).astype(np.float32) / 255.0
+
+    mean = np.array(
+        [0.485, 0.456, 0.406],
+        dtype=np.float32
     )
-)
 
-
-model = model.to(DEVICE)
-model.eval()
-
-
-print("Modelo cargado correctamente.")
-
-
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
+    std = np.array(
+        [0.229, 0.224, 0.225],
+        dtype=np.float32
     )
-])
+
+    image = (image - mean) / std
+
+    image = np.transpose(
+        image,
+        (2, 0, 1)
+    )
+
+    image = np.expand_dims(
+        image,
+        axis=0
+    )
+
+    return image.astype(np.float32)
 
 
 def explicacion(request):
-    return render(request, "clasificador/explicacion.html")
+    return render(
+        request,
+        "clasificador/explicacion.html"
+    )
+
 
 @login_required(login_url="/login/")
 def inicio(request):
@@ -102,33 +116,53 @@ def inicio(request):
                 uploaded_file
             ).convert("RGB")
 
-            image_tensor = transform(image)
+            image_tensor = preparar_imagen(image)
 
-            image_tensor = image_tensor.unsqueeze(0)
-
-            image_tensor = image_tensor.to(DEVICE)
-
-            with torch.no_grad():
-
-                outputs = model(image_tensor)
-
-                probabilities = torch.softmax(
-                    outputs,
-                    dim=1
-                )
-
-                confidence, predicted = torch.max(
-                    probabilities,
-                    dim=1
-                )
-
-            predicted_class = predicted.item()
-
-            confidence_value = (
-                confidence.item() * 100
+            outputs = session.run(
+                [output_name],
+                {
+                    input_name: image_tensor
+                }
             )
 
-            category = CLASS_NAMES[predicted_class]
+            outputs = outputs[0]
+
+            exp_outputs = np.exp(
+                outputs - np.max(
+                    outputs,
+                    axis=1,
+                    keepdims=True
+                )
+            )
+
+            probabilities = (
+                exp_outputs
+                / exp_outputs.sum(
+                    axis=1,
+                    keepdims=True
+                )
+            )
+
+            predicted_class = int(
+                np.argmax(
+                    probabilities,
+                    axis=1
+                )[0]
+            )
+
+            confidence_value = (
+                float(
+                    probabilities[
+                        0,
+                        predicted_class
+                    ]
+                )
+                * 100
+            )
+
+            category = CLASS_NAMES[
+                predicted_class
+            ]
 
             return JsonResponse(
                 {
@@ -142,34 +176,52 @@ def inicio(request):
                     )
                 }
             )
-                
 
         except Exception as e:
+
             print("ERROR:", e)
+
             return JsonResponse(
                 {
                     "error": str(e)
                 },
                 status=500
             )
-    return render(request, "clasificador/index.html")
+
+    return render(
+        request,
+        "clasificador/index.html"
+    )
+
 
 def registro(request):
+
     if request.user.is_authenticated:
         return redirect("inicio")
 
     if request.method == "POST":
+
         form = RegistroForm(request.POST)
 
         if form.is_valid():
+
             user = form.save()
-            login(request, user)
+
+            login(
+                request,
+                user
+            )
+
             return redirect("inicio")
+
     else:
+
         form = RegistroForm()
 
     return render(
         request,
         "clasificador/registro.html",
-        {"form": form}
+        {
+            "form": form
+        }
     )
