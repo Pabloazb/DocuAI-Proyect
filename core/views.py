@@ -68,11 +68,7 @@ except Exception as e:
     input_name = None
     output_name = None
 
-
-# =========================================================
-# PREPROCESAMIENTO DE IMAGEN
-# =========================================================
-
+#Aqui estoy preprocesando la imagen
 def preparar_imagen(image):
     image = image.resize((224, 224))
 
@@ -103,20 +99,12 @@ def preparar_imagen(image):
     return image.astype(np.float32)
 
 
-# =========================================================
-# PÁGINA DE EXPLICACIÓN
-# =========================================================
-
 def explicacion(request):
     return render(
         request,
         "clasificador/explicacion.html"
     )
 
-
-# =========================================================
-# CLASIFICADOR
-# =========================================================
 
 @login_required(login_url="/login/")
 def inicio(request):
@@ -135,7 +123,7 @@ def inicio(request):
 
         try:
 
-            # Comprobar que el modelo está disponible
+            # Aqui compruebo que el modelo está disponible
             if session is None:
                 return JsonResponse(
                     {
@@ -157,7 +145,6 @@ def inicio(request):
                 image
             )
 
-            # Ejecutar inferencia
             outputs = session.run(
                 [output_name],
                 {
@@ -211,6 +198,7 @@ def inicio(request):
 
             return JsonResponse(
                 {
+                    "document": uploaded_file.name,
                     "category": category,
                     "confidence": round(
                         confidence_value,
