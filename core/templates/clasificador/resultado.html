@@ -1,0 +1,150 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>DOCUAI - Resultado</title>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+
+    <div class="logo">
+        DOCUAI
+    </div>
+
+    <div class="header-right">
+
+        <a href="{% url 'inicio' %}">
+            Volver
+        </a>
+
+        <a href="{% url 'logout' %}">
+            Cerrar sesión
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="result-page">
+    <div class="result-container">
+
+        <h1>
+            Resultado del análisis
+        </h1>
+
+        <p class="result-description">
+            JSON generado por el modelo de clasificación.
+        </p>
+
+        {{ resultado|json_script:"resultado-data" }}
+
+        <div class="json-container">
+            <pre id="jsonResult"></pre>
+        </div>
+
+        <div class="result-buttons">
+
+            <button
+                type="button"
+                id="copyJsonButton">
+                Copiar JSON
+            </button>
+
+
+            <a
+                href="{% url 'inicio' %}"
+                class="back-button">
+                Analizar otro documento
+            </a>
+        </div>
+    </div>
+</main>
+
+
+<script>
+
+    // =========================================
+    // OBTENER JSON GENERADO POR DJANGO
+    // =========================================
+
+    const resultado =
+        JSON.parse(
+            document.getElementById(
+                "resultado-data"
+            ).textContent
+        );
+
+    // =========================================
+    // FORMATEAR JSON
+    // =========================================
+
+    const jsonFormatted =
+        JSON.stringify(
+            resultado,
+            null,
+            4
+        );
+
+    // =========================================
+    // MOSTRAR JSON
+    // =========================================
+
+    document.getElementById(
+        "jsonResult"
+    ).textContent =
+        jsonFormatted;
+
+    // =========================================
+    // COPIAR JSON
+    // =========================================
+
+    document.getElementById(
+        "copyJsonButton"
+    ).addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    jsonFormatted
+                );
+
+                this.textContent =
+                    "JSON copiado ✓";
+
+                setTimeout(
+                    () => {
+                        this.textContent =
+                            "Copiar JSON";
+
+                    },
+                    2000
+                );
+            } catch (error) {
+
+                console.error(
+                    "No se pudo copiar el JSON:",
+                    error
+                );
+
+            }
+
+        }
+    );
+</script>
+</body>
+</html>

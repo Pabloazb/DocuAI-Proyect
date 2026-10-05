@@ -196,20 +196,22 @@ def inicio(request):
                 predicted_class
             ]
 
-            return JsonResponse(
-                {
-                    "document": uploaded_file.name,
-                    "category": category,
-                    "confidence": round(
-                        confidence_value,
-                        2
-                    ),
-                    "message": (
-                        "Documento clasificado "
-                        "correctamente."
-                    )
-                }
-            )
+            resultado = {
+                "document": uploaded_file.name,
+                "category": category,
+                "confidence": round(
+                    confidence_value,
+                    2
+                ),
+                "message": (
+                    "Documento clasificado "
+                    "correctamente."
+                )
+            }
+
+            request.session["resultado_json"] = resultado
+
+            return JsonResponse(resultado)
 
         except Exception as e:
 
@@ -263,5 +265,22 @@ def registro(request):
         "clasificador/registro.html",
         {
             "form": form
+        }
+    )
+
+def resultado_json(request):
+
+    resultado = request.session.get(
+        "resultado_json"
+    )
+
+    if not resultado:
+        return redirect("inicio")
+
+    return render(
+        request,
+        "clasificador/resultado.html",
+        {
+            "resultado": resultado
         }
     )

@@ -1,11 +1,28 @@
-const fileInput = document.getElementById("fileInput");
-const uploadBox = document.getElementById("uploadBox");
-const uploadButton = document.getElementById("uploadButton");
-const fileName = document.getElementById("fileName");
-const analyzeButton = document.getElementById("analyzeButton");
-const resultCategory = document.getElementById("resultCategory");
-const resultConfidence = document.getElementById("resultConfidence");
-const resultMessage = document.getElementById("resultMessage");
+const fileInput =
+    document.getElementById("fileInput");
+
+const uploadBox =
+    document.getElementById("uploadBox");
+
+const uploadButton =
+    document.getElementById("uploadButton");
+
+const fileName =
+    document.getElementById("fileName");
+
+const analyzeButton =
+    document.getElementById("analyzeButton");
+
+const resultCategory =
+    document.getElementById("resultCategory");
+
+const resultConfidence =
+    document.getElementById("resultConfidence");
+
+const resultMessage =
+    document.getElementById("resultMessage");
+
+
 let selectedFile = null;
 
 
@@ -13,17 +30,31 @@ let selectedFile = null;
 // SELECCIONAR ARCHIVO
 // =========================================================
 
-uploadButton.addEventListener("click", function () {
-    fileInput.click();
-});
+uploadButton.addEventListener(
+    "click",
+    function () {
 
+        fileInput.click();
 
-fileInput.addEventListener("change", function () {
-    const file = this.files[0];
-    if (file) {
-        showFile(file);
     }
-});
+);
+
+
+fileInput.addEventListener(
+    "change",
+    function () {
+
+        const file =
+            this.files[0];
+
+        if (file) {
+
+            showFile(file);
+
+        }
+
+    }
+);
 
 
 // =========================================================
@@ -31,13 +62,25 @@ fileInput.addEventListener("change", function () {
 // =========================================================
 
 function showFile(file) {
-    selectedFile = file;
-    fileName.textContent = file.name;
-    analyzeButton.disabled = false;
-    resultCategory.textContent = "—";
-    resultConfidence.textContent = "—";
+
+    selectedFile =
+        file;
+
+    fileName.textContent =
+        file.name;
+
+    analyzeButton.disabled =
+        false;
+
+    resultCategory.textContent =
+        "—";
+
+    resultConfidence.textContent =
+        "—";
+
     resultMessage.textContent =
         "Documento preparado para analizar.";
+
 }
 
 
@@ -45,126 +88,168 @@ function showFile(file) {
 // ARRASTRAR ARCHIVO
 // =========================================================
 
-uploadBox.addEventListener("dragover", function (event) {
-    event.preventDefault();
-    uploadBox.style.borderColor = "#4f46e5";
-});
+uploadBox.addEventListener(
+    "dragover",
+    function (event) {
 
+        event.preventDefault();
 
-uploadBox.addEventListener("dragleave", function () {
-    uploadBox.style.borderColor = "#cfd5e2";
-});
+        uploadBox.style.borderColor =
+            "#4f46e5";
 
-
-uploadBox.addEventListener("drop", function (event) {
-    event.preventDefault();
-    uploadBox.style.borderColor = "#cfd5e2";
-    const file = event.dataTransfer.files[0];
-    if (file) {
-        showFile(file);
     }
-});
+);
 
 
-// =========================================================
-// ANALIZAR DOCUMENTO
-// =========================================================
+uploadBox.addEventListener(
+    "dragleave",
+    function () {
 
-analyzeButton.addEventListener("click", async function () {
+        uploadBox.style.borderColor =
+            "#cfd5e2";
 
-    if (!selectedFile) {
-        return;
     }
+);
 
 
-    analyzeButton.disabled = true;
+uploadBox.addEventListener(
+    "drop",
+    function (event) {
 
+        event.preventDefault();
 
-    resultMessage.textContent =
-        "Analizando documento...";
-    resultCategory.textContent =
-        "Analizando...";
-    resultConfidence.textContent =
-        "—";
+        uploadBox.style.borderColor =
+            "#cfd5e2";
 
+        const file =
+            event.dataTransfer.files[0];
 
-    // Crear FormData
+        if (file) {
 
-    const formData = new FormData();
-    formData.append(
-        "file",
-        selectedFile
-    );
+            showFile(file);
 
-
-    try {
-        const response = await fetch(
-            window.location.href,
-            {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken")
-                }
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.error ||
-                "Error al analizar el documento."
-            );
         }
 
+    }
+);
 
-        // Mostrar resultado real del modelo
+analyzeButton.addEventListener(
+    "click",
+    async function () {
 
-        resultCategory.textContent =
-            data.category;
-        resultConfidence.textContent =
-            data.confidence + "%";
+        if (!selectedFile) {
+            return;
+        }
+
+        analyzeButton.disabled =
+            true;
         resultMessage.textContent =
-            data.message;
-
-        console.log(
-            "Resultado del modelo:",
-            data
-        );
-
-
-    } catch (error) {
-        console.error(
-            "Error:",
-            error
-        );
-
+            "Analizando documento...";
         resultCategory.textContent =
-            "Error";
+            "Analizando...";
         resultConfidence.textContent =
             "—";
-        resultMessage.textContent =
-            error.message;
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            selectedFile
+        );
 
 
-    } finally {
-        analyzeButton.disabled = false;
+        try {
+            const response =
+                await fetch(
+                    window.location.href,
+                    {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken":
+                                getCookie(
+                                    "csrftoken"
+                                )
+                        }
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Error al analizar el documento."
+                );
+
+            }
+
+            resultCategory.textContent =
+                data.category;
+
+            resultConfidence.textContent =
+                data.confidence + "%";
+
+            resultMessage.textContent =
+                data.message;
+
+            console.log(
+                "Resultado del modelo:",
+                data
+            );
+
+            window.location.href =
+                "/resultado/";
+
+        } catch (error) {
+
+            console.error(
+                "Error:",
+                error
+            );
+
+            resultCategory.textContent =
+                "Error";
+            resultConfidence.textContent =
+                "—";
+            resultMessage.textContent =
+                error.message;
+
+        } finally {
+            analyzeButton.disabled =
+                false;
+        }
     }
+);
 
-});
+
+// =========================================================
+// OBTENER COOKIE CSRF
+// =========================================================
 
 function getCookie(name) {
 
-    let cookieValue = null;
+    let cookieValue =
+        null;
 
-    if (document.cookie &&
-        document.cookie !== "") {
+
+    if (
+        document.cookie &&
+        document.cookie !== ""
+    ) {
 
         const cookies =
             document.cookie.split(";");
-        for (let cookie of cookies) {
-            cookie = cookie.trim();
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie =
+                cookie.trim();
 
 
             if (
@@ -181,10 +266,10 @@ function getCookie(name) {
                             name.length + 1
                         )
                     );
+
                 break;
             }
         }
     }
     return cookieValue;
-
 }
