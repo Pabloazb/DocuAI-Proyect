@@ -203,10 +203,6 @@ def inicio(request):
                     confidence_value,
                     2
                 ),
-                "message": (
-                    "Documento clasificado "
-                    "correctamente."
-                )
             }
 
             request.session["resultado_json"] = resultado
