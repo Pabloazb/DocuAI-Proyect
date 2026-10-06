@@ -1,28 +1,54 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Inicia sesión</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>DOCUAI - Crear cuenta</title>
+    <link rel="stylesheet"
+          href="{% static 'css/style.css' %}">
 </head>
+
 <body>
+    <main class="auth-page">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <a href="{% url 'inicio' %}">
+                    DOCU<span>AI</span>
+                </a>
+            </div>
 
-    <h1>Inicia sesión</h1>
+            <div class="auth-header">
+                <h1>
+                    Crear cuenta
+                </h1>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+                <p>
+                    Regístrate para comenzar
+                    a utilizar DOCUAI.
+                </p>
+            </div>
 
-        <button type="submit">
-            Iniciar sesión
-        </button>
-    </form>
+            <form method="post"
+                  class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit"
+                        class="auth-button">
+                    Crear cuenta
+                </button>
+            </form>
 
-    <p>
-        ¿No tienescuenta?
-        <a href="{% url 'registro' %}">
-            Registrarte
-        </a>
-    </p>
-
+            <div class="auth-footer">
+                ¿Ya tienes una cuenta?
+                <a href="{% url 'login' %}">
+                    Inicia sesión
+                </a>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

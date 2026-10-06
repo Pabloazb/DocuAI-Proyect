@@ -123,7 +123,6 @@ def inicio(request):
 
         try:
 
-            # Aqui compruebo que el modelo está disponible
             if session is None:
                 return JsonResponse(
                     {
@@ -224,11 +223,6 @@ def inicio(request):
         request,
         "clasificador/index.html"
     )
-
-
-# =========================================================
-# REGISTRO
-# =========================================================
 
 def registro(request):
 
