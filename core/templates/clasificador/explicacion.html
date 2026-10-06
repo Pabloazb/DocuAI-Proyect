@@ -12,20 +12,13 @@
 
     <title>DocuAI - Clasificación de documentos</title>
 
-    <link rel="stylesheet"
-          href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 </head>
 
 <body>
 
-    <!-- =====================================================
-         CABECERA
-         ===================================================== -->
-
     <header class="header">
-
-        <!-- LOGO -->
 
         <div class="logo">
 
@@ -35,23 +28,13 @@
 
         </div>
 
-
-        <!-- NAVEGACIÓN -->
-
         <nav>
 
             <a href="{% url 'inicio' %}">
                 Inicio
             </a>
 
-            <a href="{% url 'explicacion' %}">
-                Ayuda
-            </a>
-
         </nav>
-
-
-        <!-- USUARIO -->
 
         {% if user.is_authenticated %}
 
@@ -79,19 +62,11 @@
 
     </header>
 
-
-    <!-- =====================================================
-         CONTENIDO
-         ===================================================== -->
-
     <main>
 
         <h2>
             ¿Cómo funciona?
         </h2>
-
-
-        <!-- PREPROCESAMIENTO -->
 
         <div class="process-card">
 
@@ -112,9 +87,6 @@
 
         </div>
 
-
-        <!-- OCR -->
-
         <div class="process-card">
 
             <div class="number">
@@ -131,9 +103,6 @@
             </p>
 
         </div>
-
-
-        <!-- INTELIGENCIA ARTIFICIAL -->
 
         <div class="process-card">
 
@@ -152,9 +121,6 @@
             </p>
 
         </div>
-
-
-        <!-- RESULTADO -->
 
         <div class="process-card">
 
