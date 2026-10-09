@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 from pathlib import Path
 import os
-import dj_database_url
+from urllib.parse import parse_qsl, urlparse
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -90,12 +90,19 @@ if not DATABASE_URL:
         "La variable de entorno DATABASE_URL no está configurada."
     )
 
+tmpPostgres = urlparse(DATABASE_URL)
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True,
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": tmpPostgres.path.lstrip("/"),
+        "USER": tmpPostgres.username,
+        "PASSWORD": tmpPostgres.password,
+        "HOST": tmpPostgres.hostname,
+        "PORT": tmpPostgres.port or 5432,
+        "OPTIONS": dict(parse_qsl(tmpPostgres.query)),
+        "CONN_MAX_AGE": 600,
+    }
 }
 
 
