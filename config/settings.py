@@ -85,21 +85,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+if not DATABASE_URL:
+    raise ValueError(
+        "La variable de entorno DATABASE_URL no está configurada."
+    )
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
+
 
 
 # Password validation
@@ -153,7 +151,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -184,3 +181,13 @@ LOGGING = {
         },
     },
 }
+
+if not os.getenv("VERCEL"):
+    LOGGING["handlers"]["file"] = {
+        "level": "INFO",
+        "class": "logging.FileHandler",
+        "filename": BASE_DIR / "docuai.log",
+        "formatter": "django_format",
+    }
+
+    LOGGING["loggers"]["core"]["handlers"].append("file")
