@@ -1,0 +1,160 @@
+COMENZAR
+COMENZAR APLICACIÓN DE DOCUMENTACIÓN
+CARGAR MODELO DE IA ONNX
+SI el modelo se carga correctamente ENTONCES
+Guardar el modelo para la clasificación
+OTRA VEZ SI NO se pudo cargar el modelo ENTONCES
+Mostrar el error de carga
+
+─────────────────────────────────────
+ACCESO A LA APLICACIÓN
+─────────────────────────────────────
+
+MOSTRAR PANTALLA DE INICIO DE SESIÓN
+SI el usuario tiene una cuenta ENTONCES
+Solicitar nombre de usuario y contraseña
+SI los datos ingresados son correctos ENTONCES
+Iniciar sesión en la cuenta
+Ingresar a la aplicación
+OTRA VEZ SI NO son datos correctos ENTONCES
+Mostrar mensaje de error
+SI el usuario no tiene una cuenta ENTONCES
+Mostrar botón "Registrarse"
+Solicitar datos del usuario
+SI los datos son válidos ENTONCES
+Registrar la cuenta
+Iniciar sesión automáticamente
+Ingresar a la aplicación
+OTRA VEZ SI NO son datos válidos ENTONCES
+Mostrar errores del formulario
+
+─────────────────────────────────────
+
+PANTALLA PRINCIPAL
+
+─────────────────────────────────────
+
+MOSTRAR PANTALLA PRINCIPAL DE DOCUAI
+Acciones del usuario:
+-Elegir documento
+-Arrastar el documento a la zona de carga
+-Analizar documento
+-Obtener información de cómo funciona
+
+─────────────────────────────────────
+ELIGIR DOCUMENTO
+─────────────────────────────────────
+
+Esperar a que el usuario elija un archivo
+SI el usuario elige un archivo ENTONCES
+Guardar el archivo elegido
+Mostrar el nombre del archivo
+Habilitar el botón "Analizar"
+SI el usuario presiona "Analizar":
+SI no hay ningún archivo entonces
+   Muestra un error
+   Detén el análisis
+FIN SI
+Envía el archivo al servidor
+
+─────────────────────────────────
+PREPROCESAMIENTO DE LA IMAGEN
+─────────────────────────────────
+
+Carga la imagen
+Convierte la imagen a RGB
+Redimensiona la imagen a 224 x 224 px
+Convierte la imagen a numérica
+Normaliza los valores de los píxeles
+Formatea la imagen para el modelo
+Agrega la dimensión al número de imágenes
+
+─────────────────────────────────
+CLASIFICACIÓN POR IA
+─────────────────────────────────
+
+Envía la imagen al modelo ONNX
+El modelo analiza la imagen
+Recibe las puntuaciones
+para las categorías
+
+─────────────────────────────────
+RECEPCIÓN DE RESULTADOS
+─────────────────────────────────
+
+Aplica SOFTMAX a las puntuaciones
+Calcula las probabilidades
+de las categorías
+Encuentra la categoría
+con la probabilidad más alta
+Recibe el porcentaje de confianza
+Traduce el número de la categoría
+al nombre del documento
+Por ejemplo:
+0 => carta
+1 => formulario
+2 => correo electrónico
+3 => escrito a mano
+4 => anuncio
+...
+15 => memorándum
+FORMA el resultado:
+  Nombre del documento
+  Nombre de la categoría
+  Porcentaje de confianza
+Almacena el resultado en la sesión del usuario
+Envía el resultado al navegador.
+
+─────────────────────────────────
+**OBTENER EL RESULTADO**
+─────────────────────────────────
+
+Aplicar SOFTMAX a las puntuaciones
+Obtener las probabilidades para cada categoría
+Encontrar la categoría con la mayor probabilidad
+Obtener el porcentaje de confianza
+Convertir el número de la categoría al nombre del documento
+
+─────────────────────────────────
+**Ejemplo:**
+─────────────────────────────────
+0  → carta
+1  → formulario
+2  → correo electrónico
+3  → escrito a mano
+4  → anuncio
+...
+15  → memorándum
+
+─────────────────────────────────
+**CREAR el resultado:**
+─────────────────────────────────
+
+Documento  | Categoría  | Confianza
+Almacenar el resultado en la sesión del usuario
+**ENVIAR el resultado al navegador**
+
+─────────────────────────────────
+**MOSTRAR EL RESULTADO**
+─────────────────────────────────
+
+Redirigir a la página de resultados
+Recuperar el resultado almacenado en la sesión
+SI hay un resultado ENTONCES
+Mostrar:
+Nombre del documento
+Categoría detectada
+Porcentaje de confianza
+El resultado en formato JSON
+Permitir copiar el JSON
+Permitir analizar otro documento
+SI NO
+Volver a la página de inicio
+
+─────────────────────────────────
+**FINALIZAR LA SESIÓN**
+─────────────────────────────────
+
+SI el usuario hace clic en "Finalizar sesión" ENTONCES
+Finalizar la sesión
+Volver a la pantalla de inicio de sesión

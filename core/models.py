@@ -19,7 +19,9 @@ class Documento(models.Model):
     formato_documento = models.CharField(max_length=50)
     nombre_documento = models.CharField(max_length=255)
     ruta_documento = models.FileField(
-        upload_to="documentos/"
+    upload_to="documentos/",
+    blank=True,
+    null=True
     )
     fecha_subida = models.DateTimeField(
         auto_now_add=True
