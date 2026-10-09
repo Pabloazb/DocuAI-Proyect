@@ -169,12 +169,6 @@ LOGGING = {
     },
 
     "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "docuai.log",
-            "formatter": "django_format",
-        },
         "console": {
             "level": "INFO",
             "class": "logging.StreamHandler",
@@ -184,7 +178,7 @@ LOGGING = {
 
     "loggers": {
         "core": {
-            "handlers": ["file", "console"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
